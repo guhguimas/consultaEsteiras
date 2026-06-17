@@ -41,35 +41,35 @@ class TelaPrincipal:
 
         status = str(resultado.get("OBS", "")).upper()
 
-        if "REP" in status:
+        if "AND" in status:
+            self.total_encontrados += 1
+
+        elif "REP" in status:
+            self.total_encontrados += 1
+
+        elif "LIB" in status:
             self.total_encontrados += 1
 
         elif "PEN" in status:
-            self.total_pendentes += 1
+            self.total_encontrados += 1
+
+        elif "CAN" in status:
+            self.total_encontrados += 1
+
+        elif "INT" in status:
+            self.total_encontrados += 1
 
         elif "ERRO" in status:
             self.total_erros += 1
 
-        self.root.after(
-            0,
-            lambda: self.lbl_encontrados.config(
-                text=f"Encontrados\n{self.total_encontrados:,}"
-            )
-        )
+        elif "LOCALIZADO" in status:
+            self.total_pendentes += 1
 
-        self.root.after(
-            0,
-            lambda: self.lbl_pendentes.config(
-                text=f"Pendentes\n{self.total_pendentes:,}"
-            )
-        )
+        self.root.after(0,lambda: self.lbl_encontrados.config(text=f"Encontrados\n{self.total_encontrados:,}"))
 
-        self.root.after(
-            0,
-            lambda: self.lbl_erros.config(
-                text=f"Erros\n{self.total_erros:,}"
-            )
-        )
+        self.root.after(0,lambda: self.lbl_pendentes.config(text=f"Pendentes\n{self.total_pendentes:,}"))
+
+        self.root.after(0,lambda: self.lbl_erros.config(text=f"Erros\n{self.total_erros:,}"))
 
     def criar_componentes(self):
 
