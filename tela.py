@@ -320,7 +320,7 @@ class TelaPrincipal:
 
                 logger.log(f"Contratos para processamento: {len(contratos):,}")
 
-                arquivo_temp = os.path.join(self.pasta_saida, "_resultado_temp.csv")
+                arquivo_temp = os.path.join(self.pasta_saida, f"{nome_arquivo}_temp.csv")
 
                 if os.path.exists(arquivo_temp):
                     os.remove(arquivo_temp)
