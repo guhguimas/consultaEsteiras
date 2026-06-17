@@ -1,0 +1,80 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*$py.class
+
+# Ambientes Virtuais
+
+venv/
+.venv/
+env/
+ENV/
+
+# VS Code
+
+.vscode/
+
+# PyCharm
+
+.idea/
+
+# Logs
+
+*.log
+
+# Arquivos Temporários
+
+*.tmp
+*.temp*
+*~$*
+Thumbs.db
+.DS_Store
+
+# Build PyInstaller
+
+build/
+dist/
+
+# Executáveis
+
+*.exe
+
+# Cache
+
+.cache/
+.pytest_cache/
+.mypy_cache/
+
+# Playwright
+
+playwright-report/
+test-results/
+
+# Arquivos Excel Gerados
+
+*.xlsx
+*.csv
+
+# Arquivos CSV Temporários
+
+_resultado_temp.csv
+
+# Arquivos de Backup
+
+backup/
+backups/
+
+# Coverage
+
+htmlcov/
+.coverage
+.coverage.*
+
+# Jupyter
+
+.ipynb_checkpoints/
+
+# Windows
+
+desktop.ini
