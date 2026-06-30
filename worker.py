@@ -1,24 +1,21 @@
 from consulta import (login, acessar_consulta, selecionar_pesquisa_contrato, consultar_contrato)
 from playwright.sync_api import sync_playwright
 from logger import logger
-from multiprocessing import Queue
 import os
-import sys
+import tempfile
 
-def obter_executable_path():
-
-    if getattr(sys, "frozen", False):
-
-        base = sys._MEIPASS
-
-        return os.path.join(
-            base,
-            "playwright",
-            "chromium-1208",
-            "chrome-win",
-            "chrome.exe"
-        )
-
+def get_browser_executable_path():
+    # Lista de caminhos possíveis para Chrome e Edge
+    caminhos = [
+        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe"
+    ]
+    
+    for path in caminhos:
+        if os.path.exists(path):
+            return path
     return None
 
 def processar_lote(page, contratos, esteira, cancelar_flag, pasta_saida, worker_id, queue, progress_callback=None, dashboard_callback=None, percentual_inicio=0, percentual_fim=100):
@@ -73,37 +70,37 @@ def processar_lote(page, contratos, esteira, cancelar_flag, pasta_saida, worker_
 
 def executar_worker(contratos,esteira,usuario,senha,cancelar_flag,worker_id,queue,pasta_saida,progress_callback=None,dashboard_callback=None,headless=False):
 
+    browser_path = get_browser_executable_path()
+    
     with sync_playwright() as p:
-
-        executable = obter_executable_path()
-
-        if executable and os.path.exists(executable):
-
-            browser = p.chromium.launch(headless=headless,executable_path=executable)
-
-        else:
-
-            browser = p.chromium.launch(headless=headless)
-        page = browser.new_page()
+        # Cria um diretório temporário único para o perfil deste worker
+        user_data_dir = tempfile.mkdtemp()
+        
+        # Lança o contexto persistente (substitui o launch + new_page)
+        # Se não encontrar o browser, o Playwright usará o padrão dele
+        context = p.chromium.launch_persistent_context(
+            user_data_dir=user_data_dir,
+            executable_path=browser_path,
+            headless=headless,
+            args=["--no-sandbox"] # Adicionado para evitar problemas comuns em automação
+        )
+        
+        page = context.pages[0] # Pega a página que já é criada automaticamente
         page.set_default_timeout(30000)
 
         try:
-
             logger.log(f"Iniciando pesquisa na esteira {esteira}")
-
             login(page, usuario, senha)
-
             acessar_consulta(page, esteira)
-
-            logger.log(f"Callback recebido? {progress_callback is not None}")
-
-            resultados = processar_lote(page=page, contratos=contratos, esteira=esteira, cancelar_flag=cancelar_flag, pasta_saida=pasta_saida, worker_id=worker_id, queue=queue, progress_callback=progress_callback, dashboard_callback=dashboard_callback, percentual_inicio=0, percentual_fim=100)
-
+            
+            resultados = processar_lote(page=page, contratos=contratos, esteira=esteira, 
+                                        cancelar_flag=cancelar_flag, pasta_saida=pasta_saida, 
+                                        worker_id=worker_id, queue=queue, 
+                                        progress_callback=progress_callback, 
+                                        dashboard_callback=dashboard_callback)
         finally:
-
-            browser.close()
+            context.close() # Fecha o contexto (que fecha o browser automaticamente)
 
     if progress_callback:
         progress_callback(worker_id, 100)
-
     return resultados
