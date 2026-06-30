@@ -2,7 +2,24 @@ from consulta import (login, acessar_consulta, selecionar_pesquisa_contrato, con
 from playwright.sync_api import sync_playwright
 from logger import logger
 from multiprocessing import Queue
+import os
+import sys
 
+def obter_executable_path():
+
+    if getattr(sys, "frozen", False):
+
+        base = sys._MEIPASS
+
+        return os.path.join(
+            base,
+            "playwright",
+            "chromium-1208",
+            "chrome-win",
+            "chrome.exe"
+        )
+
+    return None
 
 def processar_lote(page, contratos, esteira, cancelar_flag, pasta_saida, worker_id, queue, progress_callback=None, dashboard_callback=None, percentual_inicio=0, percentual_fim=100):
 
@@ -58,7 +75,15 @@ def executar_worker(contratos,esteira,usuario,senha,cancelar_flag,worker_id,queu
 
     with sync_playwright() as p:
 
-        browser = p.chromium.launch(headless=headless)
+        executable = obter_executable_path()
+
+        if executable and os.path.exists(executable):
+
+            browser = p.chromium.launch(headless=headless,executable_path=executable)
+
+        else:
+
+            browser = p.chromium.launch(headless=headless)
         page = browser.new_page()
         page.set_default_timeout(30000)
 
