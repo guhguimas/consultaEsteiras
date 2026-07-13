@@ -2,7 +2,7 @@ import pandas as pd
 from logger import logger
 
 
-ESTEIRAS_VALIDAS = ["LIBERADO", "EM ANDAMENTO", "ANDAMENTO", "REPROVADO", "PENDENTE", "AND", "REP", "PEN", "CAN", "LIB"]
+ESTEIRAS_VALIDAS = ["LIBERADO", "EM ANDAMENTO", "ANDAMENTO", "REPROVADO", "PENDENTE", "AND", "REP", "PEN", "LIB"]
 
 
 def ler_csv(arquivo):
@@ -67,7 +67,7 @@ def aplicar_filtros(df):
     df = df[df["Esteira"].isin(ESTEIRAS_VALIDAS)].copy()
 
     if df.empty:
-        logger.log("⚠ Nenhum registro após filtro de esteira.")
+        logger.log("Nenhum registro após filtro de esteira.")
 
     logger.log(f"Registros após filtro: {len(df):,}")
 

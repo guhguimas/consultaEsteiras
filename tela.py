@@ -345,6 +345,12 @@ class TelaPrincipal:
                     for futuro in futuros:
                         resultados.extend(futuro.result())
 
+                    nao_localizados = [r for r in resultados if r["OBS"] == "Contrato não Localizado"]
+
+                    logger.log("=" * 60)
+                    logger.log(f"Contratos não localizados: {len(nao_localizados):,}")
+                    logger.log("=" * 60)
+
                     queue.put("DONE")
 
                     writer_process.join()

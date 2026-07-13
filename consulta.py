@@ -17,28 +17,29 @@ XPATHS = {
 }
 
 def pad_contrato(contrato):
-
     return str(contrato).zfill(9)
 
 def obter_xpath_esteira(esteira):
-
     return '(//ul[@class="nav navbar-nav"]/li[contains(., "Esteira")]/ul/li[contains(., "Aprovação")])[1]' if esteira == "AND" else '(//ul[@class="nav navbar-nav"]/li[contains(., "Esteira")]/ul/li[contains(., "Aprovação")])[3]'
 
 def login(page, usuario, senha):
-
     page.goto(URL_LOGIN)
     page.fill(XPATHS["usuario"], usuario)
     page.fill(XPATHS["senha"], senha)
     page.click(XPATHS["login_btn"])
     page.wait_for_load_state("networkidle")
 
-def acessar_consulta(page, esteira):
-
+def acessar_consulta(page, esteira, fluxo_completo=True):
     esteira_xpath = obter_xpath_esteira(esteira)
-    page.click(XPATHS["menu_negociacao"])
-    page.wait_for_timeout(800)
-    page.click(XPATHS["submenu_autorizador"])
-    page.wait_for_load_state("networkidle")
+    
+    # Se for a Fase 1, faz o caminho desde o início
+    if fluxo_completo:
+        page.click(XPATHS["menu_negociacao"])
+        page.wait_for_timeout(800)
+        page.click(XPATHS["submenu_autorizador"])
+        page.wait_for_load_state("networkidle")
+        
+    # Fase 1 e Fase 2 executam daqui para baixo
     page.wait_for_selector(XPATHS["menu_esteira"], timeout=20000)
     page.hover(XPATHS["menu_esteira"])
     page.wait_for_timeout(800)
@@ -48,11 +49,9 @@ def acessar_consulta(page, esteira):
     print("Tela de consulta carregada")
 
 def selecionar_pesquisa_contrato(page):
-
     page.select_option(XPATHS["dropdown_pesquisa"], value="Contrato")
 
 def pesquisar_contrato(page, contrato):
-
     contrato = pad_contrato(contrato)
     page.fill(XPATHS["campo_pesquisa"], "")
     page.fill(XPATHS["campo_pesquisa"], contrato)
@@ -60,13 +59,10 @@ def pesquisar_contrato(page, contrato):
     page.wait_for_timeout(300)
 
 def wait_grid_for_contract(page, contrato, timeout=2000):
-
     try:
-
         page.wait_for_function(
             """
             (contrato) => {
-
                 const el = document.evaluate(
                     '//*[@id="ctl00_Cph_AprCons_grdConsulta"]/tbody/tr[2]/td[1]',
                     document,
@@ -86,32 +82,24 @@ def wait_grid_for_contract(page, contrato, timeout=2000):
             arg=contrato,
             timeout=timeout
         )
-
         return True
-
     except TimeoutError:
-
         return False
 
 def consultar_contrato(page, contrato):
-
     contrato_pesquisa = pad_contrato(contrato)
     pesquisar_contrato(page, contrato)
     localizado = wait_grid_for_contract(page, contrato_pesquisa)
 
     if not localizado:
-
         return {
             "CONTRATO": contrato,
             "OBS": "Contrato não Localizado"
         }
 
     try:
-
         status = page.inner_text('//*[@id="ctl00_Cph_AprCons_grdConsulta"]/tbody/tr[2]/td[9]').strip()
-
     except:
-
         status = "Sem informação"
 
     return {
