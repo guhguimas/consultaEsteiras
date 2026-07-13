@@ -126,16 +126,16 @@ def executar_worker(contratos, esteira, usuario, senha, cancelar_flag, worker_id
     
     with sync_playwright() as p:
         
-        # Prepara os argumentos extras de blindagem
+        # Prepara os argumentos base (comuns para ambos os modos)
         browser_args = [
             "--no-sandbox", 
             "--disable-gpu",
-            "--disable-extensions", # Evita que alguma extensão force a abertura de aba
-            "--headless=new"        # Força o uso do novo motor oculto do Chrome
+            "--disable-extensions"
         ]
         
-        # O TRUQUE DE MESTRE: Se estiver no modo oculto, joga a janela para fora da tela
+        # Adiciona os argumentos ESPECÍFICOS apenas se o modo oculto estiver ativado
         if headless:
+            browser_args.append("--headless=new")
             browser_args.append("--window-position=-32000,-32000")
 
         browser = p.chromium.launch(
