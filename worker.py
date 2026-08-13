@@ -2,6 +2,9 @@ from consulta import (login, acessar_consulta, selecionar_pesquisa_contrato, con
 from playwright.sync_api import sync_playwright
 from logger import logger
 import os
+from playwright._impl._driver import compute_driver_executable
+
+print(compute_driver_executable())
 
 def get_browser_executable_path():
     caminhos = [

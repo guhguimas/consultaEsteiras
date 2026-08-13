@@ -2,7 +2,7 @@ import pandas as pd
 from logger import logger
 
 
-ESTEIRAS_VALIDAS = ["LIBERADO", "EM ANDAMENTO", "ANDAMENTO", "REPROVADO", "PENDENTE", "AND", "REP", "PEN", "LIB"]
+ESTEIRAS_VALIDAS = ["LIBERADO", "LIBERADA", "EM ANDAMENTO", "ANDAMENTO", "REPROVADO", "PENDENTE", "AND", "REP", "PEN", "LIB"]
 
 
 def ler_csv(arquivo):
